@@ -9,3 +9,4 @@ coverage/
 *.p12
 *.pem
 .DS_Store
+*.log

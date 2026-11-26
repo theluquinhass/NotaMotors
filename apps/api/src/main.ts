@@ -1,11 +1,11 @@
 import 'reflect-metadata';
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module.js';
+import { createApp } from './app.js';
 
-async function bootstrap(): Promise<void> {
-  const app = await NestFactory.create(AppModule);
-  app.setGlobalPrefix('api');
-  await app.listen(Number(process.env.PORT ?? 3000));
+try {
+  process.loadEnvFile(new URL('../../../.env', import.meta.url));
+} catch {
+  // Sem .env: usa as variáveis do ambiente (produção).
 }
 
-void bootstrap();
+const app = await createApp();
+await app.listen(Number(process.env.PORT ?? 3000));

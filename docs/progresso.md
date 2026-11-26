@@ -1,5 +1,54 @@
 # Progresso
 
+## 26/11/2026 · Sessão 3 · Bloco Base
+
+**Horas:** ≈ 1 h (ajustar com o tempo real)
+
+**Feito**
+
+- Dependências aprovadas: `zod` (em `packages/shared` e na API) e `argon2`.
+- `packages/shared`: `signupInputSchema` (normaliza nome, e-mail em minúsculas, nome da loja; senha de 8 a 128 caracteres, sem alterar), mensagens em português; tipo `SignupResponse`.
+- API: `DatabaseModule` global (fecha o pool ao desligar), `ZodValidationPipe` (400 com `fields` por campo), `createApp()` usado em produção e nos testes, `.env` carregado no `main.ts`.
+- `POST /api/auth/signup`: numa transação cria usuário (argon2id), loja (`fiscal_status = incomplete`), vínculo `owner` e assinatura `trialing` com `trial_ends_at = now() + 14 dias` pelo relógio do banco. E-mail repetido → 409, sem loja órfã.
+- Testes: 4 do schema compartilhado, 4 e2e do cadastro contra banco real (cadastro completo, e-mail repetido em outra caixa, dados inválidos, campos proibidos ignorados).
+- Teste manual no servidor compilado: 201 no cadastro, 409 no e-mail repetido.
+
+**Ainda não feito (de propósito)**
+
+- O cadastro ainda não abre sessão: o usuário vai fazer login logo depois. Isso entra na sessão 4.
+
+**Pendências de segurança (antes de publicar)**
+
+- Limite de tentativas no cadastro e no login (rate limit).
+- O 409 revela que o e-mail existe. Aceitável no cadastro por usabilidade; rever junto com o rate limit.
+
+**Próximo passo (sessão 4)**
+
+Login e sessão: `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me`; sessão em cookie httpOnly; o cadastro já abre sessão. Proposta: tabela `sessions` no Postgres (token aleatório, guardado só o hash), sem dependência nova. Mudança no modelo de dados: precisa de aprovação.
+
+## 26/11/2026 · Sessão 2 · Bloco Base
+
+**Horas:** ≈ 1 h (ajustar com o tempo real)
+
+**Feito**
+
+- `docker-compose.yml` com Postgres 18.7 em UTC, bancos `notamotors` e `notamotors_test`; `.env.example`.
+- Drizzle (`drizzle-orm`, `pg`, `drizzle-kit`) com esquema em `apps/api/src/db/schema`.
+- Migração `0000_init`: `users`, `stores`, `memberships`, `subscriptions`, `store_tax_regimes`.
+- Migração `0001_store_tax_regimes_no_overlap` (escrita à mão): `btree_gist` + `EXCLUDE` contra regimes sobrepostos.
+- Migrações aplicadas no banco de desenvolvimento.
+- Testes de integração contra banco real (7): UUID v7, períodos consecutivos aceitos, sobreposição rejeitada, mesmo período em lojas diferentes, período invertido, formato do CNPJ alfanumérico, e-mail único sem diferenciar maiúsculas.
+- `pnpm check` e `pnpm build` passando.
+
+**Decisões tomadas na sessão**
+
+- Banco local no Docker para desenvolvimento e testes; online só na publicação.
+- UUID v7, enums do Postgres, sem exclusão em cascata, `created_by` opcional, índice em `memberships.user_id`.
+
+**Próximo passo (sessão 3)**
+
+Cadastro: rota `POST /api/auth/signup` que, numa única transação, cria usuário (senha com argon2), loja, vínculo `owner` e assinatura em teste de 14 dias. Validação com Zod em `packages/shared`. Dependências novas a aprovar: `argon2`, `zod`.
+
 ## 26/11/2026 · Sessão 1 · Bloco Base
 
 **Horas:** ≈ 1 h (ajustar com o tempo real)

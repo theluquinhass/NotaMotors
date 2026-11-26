@@ -2,11 +2,13 @@
 
 SaaS para quem vende veículos (seminovos, concessionárias 0 km e lojas de motos): estoque, vendas, métricas e NF-e nas regras da reforma tributária. Diferencial proposto: formalização guiada.
 
-Situação em 26/11/2026: esqueleto do monorepo criado. Um desenvolvedor, cerca de 2 horas por dia. Início do desenvolvimento: 30/11/2026. Responda em português do Brasil.
+Situação em 26/11/2026: monorepo, banco e cadastro (`POST /api/auth/signup`) prontos. Um desenvolvedor, cerca de 2 horas por dia. Início do desenvolvimento: 30/11/2026. Responda em português do Brasil.
 
 ## Comandos
 
-Requisitos: Node 22+ e pnpm 10. No Fedora o Node vem sem corepack; o pnpm foi instalado com `npm install -g pnpm@10 --prefix ~/.local`. Docker entra na sessão 2 (Postgres).
+Requisitos: Node 22+, pnpm 10 e Docker. No Fedora o Node vem sem corepack; o pnpm foi instalado com `npm install -g pnpm@10 --prefix ~/.local`.
+
+Primeira vez: `cp .env.example .env`, `docker compose up -d --wait`, `pnpm install`, `pnpm --filter @notamotors/api db:migrate`.
 
 | Comando          | O que faz                                                                 |
 | ---------------- | ------------------------------------------------------------------------- |
@@ -32,7 +34,9 @@ Requisitos: Node 22+ e pnpm 10. No Fedora o Node vem sem corepack; o pnpm foi in
 - Pacotes internos: o código-fonte é usado direto no front e nos testes (condição `@notamotors/source`); a API rodando em Node usa o `dist` compilado, por isso `pnpm dev` compila `packages/*` antes de subir.
 - TypeScript fixo em 6.0 (`~6.0.3`): a 7.0 (versão em Go) ainda não é suportada pelo typescript-eslint.
 - Versões instaladas na base: NestJS 12, Vite 8, Vitest 5, ESLint 10, React (última). Sem `jest-dom` (tipos incompatíveis com Vitest 5).
-- PostgreSQL + Drizzle. RLS como segunda barreira de isolamento entre lojas.
+- PostgreSQL 18 + Drizzle (driver `pg`). Local no Docker para desenvolvimento e testes; Postgres gerenciado (região São Paulo) só na publicação. O código lê apenas `DATABASE_URL`.
+- Banco: IDs UUID v7 (`uuidv7()` do Postgres 18); enums do Postgres para status, papéis e regimes; sem `ON DELETE CASCADE`; constraints que o Drizzle não gera (ex.: `EXCLUDE`) vão em migração SQL escrita à mão (`db:generate --custom`).
+- RLS como segunda barreira de isolamento entre lojas (sessão 5).
 - Login próprio: e-mail e senha com argon2, sessão em cookie httpOnly.
 - Testes: Vitest; banco real via Docker Compose para testes de integração.
 - Filas: adiar; tendência para pg-boss quando houver emissão.
