@@ -5,6 +5,8 @@ import { CompanyPage } from './pages/company-page';
 import { DashboardPage } from './pages/dashboard-page';
 import { LoginPage } from './pages/login-page';
 import { NotFoundPage } from './pages/not-found-page';
+import { PartiesListPage } from './pages/parties/parties-list-page';
+import { PartyFormPage } from './pages/parties/party-form-page';
 import { SignupPage } from './pages/signup-page';
 
 export const routes: RouteObject[] = [
@@ -30,6 +32,18 @@ export const routes: RouteObject[] = [
   {
     path: '/app/empresa',
     element: <RequireAccess>{(me) => <CompanyPage me={me} />}</RequireAccess>,
+  },
+  {
+    path: '/app/pessoas',
+    element: <RequireAccess>{(me) => <PartiesListPage me={me} />}</RequireAccess>,
+  },
+  {
+    path: '/app/pessoas/nova',
+    element: <RequireAccess>{(me) => <PartyFormPage me={me} />}</RequireAccess>,
+  },
+  {
+    path: '/app/pessoas/:id',
+    element: <RequireAccess>{(me) => <PartyFormPage me={me} />}</RequireAccess>,
   },
   {
     path: '/checkout',

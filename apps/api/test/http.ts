@@ -71,3 +71,20 @@ export async function fakeCnpj(): Promise<string> {
   for (let i = 0; i < 12; i++) base += chars[Math.floor(Math.random() * chars.length)];
   return base + cnpjCheckDigits(base);
 }
+
+/** CPF válido e aleatório (fictício). */
+export async function fakeCpf(): Promise<string> {
+  const { cpfCheckDigits } = await import('@notamotors/shared');
+  let base = '';
+  for (let i = 0; i < 9; i++) base += Math.floor(Math.random() * 10);
+  if (/^(.)\1{8}$/.test(base)) base = '123456789';
+  return base + cpfCheckDigits(base);
+}
+
+/** Conta nova (dono) já logada. */
+export async function signedUpOwner(baseUrl: string) {
+  const browser = new Browser(baseUrl);
+  const res = await browser.post('/auth/signup', fakeSignup());
+  const { storeId, userId } = (await res.json()) as { storeId: string; userId: string };
+  return { browser, storeId, userId };
+}

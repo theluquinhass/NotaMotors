@@ -351,3 +351,144 @@ fieldset {
   clip: rect(0 0 0 0);
   white-space: nowrap;
 }
+
+.page-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.page-title h1 {
+  margin: 0;
+}
+
+.button.primary.inline {
+  width: auto;
+}
+
+.search {
+  display: flex;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.search input {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.list li + li {
+  border-top: 1px solid var(--border);
+}
+
+.list a {
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.75rem 1rem;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.list a:hover {
+  background: var(--bg);
+}
+
+.list-title {
+  font-weight: 600;
+}
+
+.list-meta {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.empty {
+  color: var(--muted);
+  padding: 2rem 0;
+  text-align: center;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+  color: var(--muted);
+}
+
+.breadcrumb {
+  margin: 0 0 0.5rem;
+}
+
+.form-wide h2 {
+  margin-top: 1.25rem;
+}
+
+.grid-2,
+.grid-3 {
+  display: grid;
+  gap: 0 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.grid-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 720px) {
+  .grid-2,
+  .grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.field-label {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.radio-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+}
+
+.field.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.field textarea {
+  font: inherit;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  resize: vertical;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}

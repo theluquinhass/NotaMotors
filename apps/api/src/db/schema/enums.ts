@@ -12,3 +12,6 @@ export const subscriptionStatus = pgEnum('subscription_status', [
 ]);
 
 export const taxRegime = pgEnum('tax_regime', ['simples', 'regular']);
+
+/** PF (pessoa física, CPF) ou PJ (pessoa jurídica, CNPJ). */
+export const partyKind = pgEnum('party_kind', ['person', 'company']);

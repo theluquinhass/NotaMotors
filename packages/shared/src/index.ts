@@ -6,3 +6,5 @@ export * from './auth.js';
 export * from './access.js';
 export * from './cnpj.js';
 export * from './store-fiscal.js';
+export * from './cpf.js';
+export * from './parties.js';

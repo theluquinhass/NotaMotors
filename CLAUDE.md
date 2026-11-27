@@ -2,7 +2,7 @@
 
 SaaS para quem vende veículos (seminovos, concessionárias 0 km e lojas de motos): estoque, vendas, métricas e NF-e nas regras da reforma tributária. Diferencial proposto: formalização guiada.
 
-Situação em 27/11/2026: bloco Base pronto, exceto a publicação (aguarda escolha de provedor e custo). Bloco Cadastros começou: dados fiscais da empresa prontos. Um desenvolvedor, cerca de 2 horas por dia. Início do desenvolvimento: 30/11/2026. Responda em português do Brasil.
+Situação em 27/11/2026: bloco Base pronto, exceto a publicação (aguarda escolha de provedor e custo). Bloco Cadastros: dados fiscais da empresa e pessoas (clientes/fornecedores) prontos; falta veículos. Um desenvolvedor, cerca de 2 horas por dia. Início do desenvolvimento: 30/11/2026. Responda em português do Brasil.
 
 ## Comandos
 
@@ -84,7 +84,7 @@ Loja sem cadastro fiscal completo usa estoque e vendas, mas não emite nota.
 - `users`, `memberships` (papel por loja: `owner`, `seller`).
 - `sessions`: usuário, loja ativa, hash SHA-256 do token (o token só existe no cookie), `expires_at` (30 dias, pelo relógio do banco), `revoked_at`.
 - `subscriptions` (uma por loja): `status` (`trialing` | `active` | `past_due` | `canceled`), `trial_ends_at`, `current_period_end`, `manual_grant` (loja piloto), campos do gateway nulos até o marco 2.
-- `parties`: clientes e fornecedores na mesma tabela (PF/PJ, CPF/CNPJ, IE, MEI, endereço, contato).
+- `parties` (pronta, migração `0004`): clientes e fornecedores na mesma tabela, sem marcação de papel (o papel vem do uso). PF/PJ, CPF ou CNPJ opcional e único por loja, nome/razão social, nome fantasia, MEI, regime da PJ (copiado na compra), IE, contato, endereço com código IBGE. Sem exclusão.
 - `vehicles`: identidade física (chassi, RENAVAM, placa, marca, modelo, versão, anos, cor, combustível, `category`). Chassi único por loja.
 - `stock_entries`: cada passagem do veículo pelo estoque (status, reserva, data e km de entrada).
 - `acquisitions`: compra ou troca; vendedor + cópia do tipo fiscal do vendedor na data (PF, MEI, PJ Simples, PJ regular); valor; nota de entrada (chave, número, série, emitente, arquivo). `presumed_credit_amount` nulo e marcado como não validado.

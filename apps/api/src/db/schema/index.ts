@@ -5,3 +5,4 @@ export * from './memberships.js';
 export * from './subscriptions.js';
 export * from './store-tax-regimes.js';
 export * from './sessions.js';
+export * from './parties.js';

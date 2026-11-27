@@ -1,5 +1,21 @@
 # Progresso
 
+## 27/11/2026 · Sessão 9 · Bloco Cadastros
+
+**Horas:** ≈ 1,5 h (ajustar com o tempo real)
+
+**Feito**
+
+- Tabela `parties` aprovada (migração `0004_parties`, com RLS na mesma migração).
+- `packages/shared`: validação de CPF; `partyInputSchema` (documento validado conforme PF/PJ, campos de PJ limpos em PF, regime limpo para MEI, vazios viram `null`, CEP e IBGE só números).
+- API: `GET /api/parties` (busca por nome, nome fantasia ou início do CPF/CNPJ; curingas digitados são literais; 20 por página), `GET /api/parties/:id`, `POST /api/parties`, `PUT /api/parties/:id`. Documento repetido na loja → 409; id inválido ou de outra loja → 404. Dono e vendedor podem cadastrar.
+- Front: menu **Pessoas**, lista com busca e paginação pela URL, formulário de nova/editar pessoa que muda conforme PF/PJ/MEI.
+- Testes: 3 de CPF, 5 do schema, 11 e2e (inclusive isolamento: loja B não lista, não lê e não altera pessoas da loja A), 1 bloco novo no teste modelo de RLS, 9 de tela.
+
+**Próximo passo (sessão 10)**
+
+Cadastro de veículos (`vehicles`): chassi (17 caracteres), RENAVAM (11 dígitos com dígito verificador), placa (antiga e Mercosul), marca, modelo, versão, anos, cor, combustível, categoria. Chassi único por loja. Mostrar o esquema antes da migração.
+
 ## 27/11/2026 · Sessão 8 · Bloco Cadastros
 
 **Horas:** ≈ 1,5 h (ajustar com o tempo real)

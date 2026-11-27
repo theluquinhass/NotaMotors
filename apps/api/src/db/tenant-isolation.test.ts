@@ -3,7 +3,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { Browser, fakeSignup, startApi, type TestApi } from '../../test/http.js';
 import { createDatabase, type Database } from './client.js';
 import { asPgError } from './errors.js';
-import { memberships, storeTaxRegimes, stores, subscriptions } from './schema/index.js';
+import { memberships, parties, storeTaxRegimes, stores, subscriptions } from './schema/index.js';
 import { withTenant } from './tenant.js';
 
 const PG_INSUFFICIENT_PRIVILEGE = '42501';
@@ -32,11 +32,14 @@ describe('tenant isolation (RLS)', () => {
     ({ storeId: storeA, userId: userA } = await signup());
     ({ storeId: storeB } = await signup());
 
-    // Um regime em cada loja, gravado pelo próprio papel da API com o contexto certo.
+    // Um regime e uma pessoa em cada loja, gravados pelo próprio papel da API com o contexto certo.
     for (const storeId of [storeA, storeB]) {
-      await withTenant(app, { storeId }, (tx) =>
-        tx.insert(storeTaxRegimes).values({ storeId, regime: 'simples', validFrom: '2026-01-01' }),
-      );
+      await withTenant(app, { storeId }, async (tx) => {
+        await tx
+          .insert(storeTaxRegimes)
+          .values({ storeId, regime: 'simples', validFrom: '2026-01-01' });
+        await tx.insert(parties).values({ storeId, kind: 'person', name: 'Pessoa fictícia' });
+      });
     }
   });
 
@@ -61,6 +64,7 @@ describe('tenant isolation (RLS)', () => {
       expect(await tx.select().from(subscriptions)).toEqual([]);
       expect(await tx.select().from(storeTaxRegimes)).toEqual([]);
       expect(await tx.select().from(memberships)).toEqual([]);
+      expect(await tx.select().from(parties)).toEqual([]);
     });
     // Fora de transação nenhuma, também nada.
     expect(await app.select().from(stores)).toEqual([]);
@@ -72,6 +76,7 @@ describe('tenant isolation (RLS)', () => {
       expect((await tx.select().from(subscriptions)).map((r) => r.storeId)).toEqual([storeA]);
       expect((await tx.select().from(storeTaxRegimes)).map((r) => r.storeId)).toEqual([storeA]);
       expect((await tx.select().from(memberships)).map((r) => r.storeId)).toEqual([storeA]);
+      expect((await tx.select().from(parties)).map((r) => r.storeId)).toEqual([storeA]);
     });
   });
 
@@ -116,6 +121,16 @@ describe('tenant isolation (RLS)', () => {
           .insert(storeTaxRegimes)
           .values({ storeId: storeB, regime: 'regular', validFrom: '2030-01-01' }),
       );
+    } catch (e) {
+      error = e;
+    }
+    expect(asPgError(error).code).toBe(PG_INSUFFICIENT_PRIVILEGE);
+  });
+
+  it('store A cannot insert people into store B', async () => {
+    let error: unknown;
+    try {
+      await asA((tx) => tx.insert(parties).values({ storeId: storeB, kind: 'person', name: 'X' }));
     } catch (e) {
       error = e;
     }

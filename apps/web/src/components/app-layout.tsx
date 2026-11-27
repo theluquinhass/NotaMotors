@@ -47,6 +47,7 @@ export function AppLayout({ me, children }: { me: MeResponse; children: ReactNod
         <NavLink to="/app" end>
           Início
         </NavLink>
+        <NavLink to="/app/pessoas">Pessoas</NavLink>
         <NavLink to="/app/empresa">Empresa</NavLink>
       </nav>
       <AccessBanner access={me.access} />
