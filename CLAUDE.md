@@ -2,7 +2,7 @@
 
 SaaS para quem vende veículos (seminovos, concessionárias 0 km e lojas de motos): estoque, vendas, métricas e NF-e nas regras da reforma tributária. Diferencial proposto: formalização guiada.
 
-Situação em 26/11/2026: monorepo, banco e cadastro (`POST /api/auth/signup`) prontos. Um desenvolvedor, cerca de 2 horas por dia. Início do desenvolvimento: 30/11/2026. Responda em português do Brasil.
+Situação em 27/11/2026: monorepo, banco, cadastro, login e sessão prontos. Um desenvolvedor, cerca de 2 horas por dia. Início do desenvolvimento: 30/11/2026. Responda em português do Brasil.
 
 ## Comandos
 
@@ -37,7 +37,8 @@ Primeira vez: `cp .env.example .env`, `docker compose up -d --wait`, `pnpm insta
 - PostgreSQL 18 + Drizzle (driver `pg`). Local no Docker para desenvolvimento e testes; Postgres gerenciado (região São Paulo) só na publicação. O código lê apenas `DATABASE_URL`.
 - Banco: IDs UUID v7 (`uuidv7()` do Postgres 18); enums do Postgres para status, papéis e regimes; sem `ON DELETE CASCADE`; constraints que o Drizzle não gera (ex.: `EXCLUDE`) vão em migração SQL escrita à mão (`db:generate --custom`).
 - RLS como segunda barreira de isolamento entre lojas (sessão 5).
-- Login próprio: e-mail e senha com argon2, sessão em cookie httpOnly.
+- Login próprio: e-mail e senha com argon2id; sessão no Postgres (`sessions`), token no cookie `nm_session` (httpOnly, SameSite=Lax, Secure em produção).
+- Guard global `SessionGuard` fechado por padrão: toda rota exige sessão; rotas abertas usam `@Public()`. O contexto de quem está logado vem de `@CurrentAuth()` (`userId`, `storeId`, `role`).
 - Testes: Vitest; banco real via Docker Compose para testes de integração.
 - Filas: adiar; tendência para pg-boss quando houver emissão.
 - XML e DANFE em armazenamento compatível com S3.
@@ -71,6 +72,7 @@ Loja sem cadastro fiscal completo usa estoque e vendas, mas não emite nota.
 - `stores`: uma loja = um CNPJ. Nome obrigatório; CNPJ, IE e UF opcionais (o cadastro inicial pede só o nome). `fiscal_status`: `incomplete` | `complete`.
 - `store_tax_regimes`: regime (`simples` | `regular`) com `valid_from`/`valid_to`; sem períodos sobrepostos por loja.
 - `users`, `memberships` (papel por loja: `owner`, `seller`).
+- `sessions`: usuário, loja ativa, hash SHA-256 do token (o token só existe no cookie), `expires_at` (30 dias, pelo relógio do banco), `revoked_at`.
 - `subscriptions` (uma por loja): `status` (`trialing` | `active` | `past_due` | `canceled`), `trial_ends_at`, `current_period_end`, `manual_grant` (loja piloto), campos do gateway nulos até o marco 2.
 - `parties`: clientes e fornecedores na mesma tabela (PF/PJ, CPF/CNPJ, IE, MEI, endereço, contato).
 - `vehicles`: identidade física (chassi, RENAVAM, placa, marca, modelo, versão, anos, cor, combustível, `category`). Chassi único por loja.

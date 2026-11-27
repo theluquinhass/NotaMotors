@@ -15,6 +15,13 @@
       "when": 1795705126357,
       "tag": "0001_store_tax_regimes_no_overlap",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1795778838859,
+      "tag": "0002_sessions",
+      "breakpoints": true
     }
   ]
 }

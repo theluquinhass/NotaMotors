@@ -1,5 +1,29 @@
 # Progresso
 
+## 27/11/2026 · Sessão 4 · Bloco Base
+
+**Horas:** ≈ 1 h (ajustar com o tempo real)
+
+**Feito**
+
+- Tabela `sessions` (migração `0002_sessions`), aprovada: token aleatório de 32 bytes no cookie, só o hash SHA-256 no banco, validade de 30 dias pelo relógio do banco, revogação por `revoked_at`.
+- `SessionGuard` global, fechado por padrão; `@Public()` em cadastro, login e status; `@CurrentAuth()` para as rotas.
+- `POST /api/auth/login` (200 + cookie), `POST /api/auth/logout` (204, revoga no servidor e apaga o cookie), `GET /api/auth/me`.
+- O cadastro já abre sessão (`/cadastro` → `/app`).
+- Login: mesma mensagem e mesmo tempo de resposta para senha errada e e-mail inexistente.
+- Cookie `nm_session`: httpOnly, SameSite=Lax, Path=/, Secure em produção; lido sem dependência nova (só `@types/express` em dev).
+- Helper de testes `test/http.ts` (API real em porta livre + cliente que guarda cookie).
+- 9 testes e2e novos: cadastro já logado, login com e-mail em outra caixa, atributos do cookie, erro igual para senha errada e e-mail inexistente, rota protegida sem sessão, token inventado, status público, token guardado só como hash, logout com reaproveitamento do cookie antigo, sessão vencida.
+
+**Pendências de segurança (antes de publicar)**
+
+- Limite de tentativas no cadastro e no login (rate limit).
+- Limpeza periódica de sessões vencidas ou revogadas.
+
+**Próximo passo (sessão 5)**
+
+RLS e teste de isolamento entre lojas: papel de banco sem privilégio para a API, `app.store_id` definido por transação a partir da sessão, políticas nas tabelas da loja e o teste modelo "loja A não vê dados da loja B".
+
 ## 26/11/2026 · Sessão 3 · Bloco Base
 
 **Horas:** ≈ 1 h (ajustar com o tempo real)

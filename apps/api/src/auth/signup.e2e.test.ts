@@ -1,11 +1,8 @@
-import 'reflect-metadata';
-import { randomUUID } from 'node:crypto';
-import { type INestApplication } from '@nestjs/common';
 import { TRIAL_DAYS, type SignupResponse } from '@notamotors/shared';
 import argon2 from 'argon2';
 import { eq, sql } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { createApp } from '../app.js';
+import { fakeSignup, startApi, type TestApi } from '../../test/http.js';
 import { createDatabase, type Database } from '../db/client.js';
 import { memberships, stores, subscriptions, users } from '../db/schema/index.js';
 
@@ -17,36 +14,23 @@ interface ErrorBody {
 }
 
 describe('POST /api/auth/signup', () => {
-  let app: INestApplication;
-  let baseUrl: string;
+  let api: TestApi;
   let db: Database;
 
   beforeAll(async () => {
-    app = await createApp({ logger: false });
-    await app.listen(0);
-    baseUrl = `${await app.getUrl()}/api`.replace('[::1]', 'localhost');
+    api = await startApi();
     db = createDatabase(process.env.DATABASE_URL ?? '');
   });
 
   afterAll(async () => {
-    await app.close();
+    await api.close();
     await db.$client.end();
   });
 
-  // Dados fictícios (LGPD): e-mail e loja únicos por teste.
-  function input(overrides: Record<string, unknown> = {}) {
-    const tag = randomUUID();
-    return {
-      name: 'Pessoa Teste',
-      email: `pessoa-${tag}@exemplo.test`,
-      password: 'senha-forte-123',
-      storeName: `Loja ${tag}`,
-      ...overrides,
-    };
-  }
+  const input = fakeSignup;
 
   function post(body: unknown) {
-    return fetch(`${baseUrl}/auth/signup`, {
+    return fetch(`${api.baseUrl}/auth/signup`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify(body),
