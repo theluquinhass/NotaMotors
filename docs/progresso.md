@@ -1,5 +1,23 @@
 # Progresso
 
+## 27/11/2026 · Sessão 5 · Bloco Base
+
+**Horas:** ≈ 1 h (ajustar com o tempo real)
+
+**Feito**
+
+- Papel `notamotors_app` para a API (sem superusuário, sem `bypassrls`, não é dono das tabelas); `notamotors` fica para migrações. `.env` com `DATABASE_URL` e `DATABASE_ADMIN_URL` (e as versões `_TEST`).
+- Migração `0003_row_level_security` (escrita à mão): privilégios da API, privilégios padrão para tabelas futuras, funções `app_current_store_id()`/`app_current_user_id()`, RLS e políticas em `stores`, `subscriptions`, `store_tax_regimes` e `memberships`.
+- `withTenant()`/`setTenant()` em `apps/api/src/db/tenant.ts`: contexto da loja por transação (`set_config(..., true)`).
+- Cadastro, login, `/auth/me` e validação de sessão passaram a rodar sob o RLS.
+- Teste modelo `src/db/tenant-isolation.test.ts` (9 testes) com o papel da API: papel sem privilégios, falha fechada sem contexto, leitura só da própria loja, nem por id, sem alterar/apagar/gravar na outra loja, sem se incluir em outra loja, contexto não vaza entre transações do pool, sem alterar o esquema.
+- Teste de mutação: com o RLS de `subscriptions` desligado, 4 testes falham (confirmado e revertido).
+- Servidor compilado testado com o papel sem privilégios: cadastro e `/auth/me` funcionando.
+
+**Próximo passo (sessão 6)**
+
+Trava de acesso: guard global que calcula a situação (em teste, assinante, liberação manual, teste vencido) a cada requisição pelo relógio do banco; rotas do dashboard bloqueadas com teste vencido; `/auth/me` informa a situação e os dias restantes. Testes obrigatórios: teste ativo, teste vencido, assinatura ativa, liberação manual.
+
 ## 27/11/2026 · Sessão 4 · Bloco Base
 
 **Horas:** ≈ 1 h (ajustar com o tempo real)

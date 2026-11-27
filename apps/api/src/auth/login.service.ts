@@ -5,6 +5,7 @@ import { and, asc, eq, sql } from 'drizzle-orm';
 import type { Database } from '../db/client.js';
 import { DATABASE } from '../db/database.module.js';
 import { memberships, stores, users } from '../db/schema/index.js';
+import { withTenant } from '../db/tenant.js';
 
 const INVALID_CREDENTIALS = 'E-mail ou senha incorretos';
 
@@ -35,12 +36,15 @@ export class LoginService {
     }
 
     // Hoje cada usuário tem uma loja; com várias, entra a escolha de loja.
-    const [membership] = await this.db
-      .select({ storeId: memberships.storeId })
-      .from(memberships)
-      .where(eq(memberships.userId, user.id))
-      .orderBy(asc(memberships.createdAt))
-      .limit(1);
+    // Ainda sem loja no contexto: o RLS só mostra os vínculos do próprio usuário.
+    const [membership] = await withTenant(this.db, { userId: user.id }, (tx) =>
+      tx
+        .select({ storeId: memberships.storeId })
+        .from(memberships)
+        .where(eq(memberships.userId, user.id))
+        .orderBy(asc(memberships.createdAt))
+        .limit(1),
+    );
 
     if (!membership) throw new UnauthorizedException('Usuário sem loja vinculada');
 
@@ -48,20 +52,22 @@ export class LoginService {
   }
 
   async me(userId: string, storeId: string): Promise<MeResponse> {
-    const [row] = await this.db
-      .select({
-        userId: users.id,
-        userName: users.name,
-        email: users.email,
-        storeId: stores.id,
-        storeName: stores.name,
-        role: memberships.role,
-      })
-      .from(memberships)
-      .innerJoin(users, eq(users.id, memberships.userId))
-      .innerJoin(stores, eq(stores.id, memberships.storeId))
-      .where(and(eq(memberships.userId, userId), eq(memberships.storeId, storeId)))
-      .limit(1);
+    const [row] = await withTenant(this.db, { storeId, userId }, (tx) =>
+      tx
+        .select({
+          userId: users.id,
+          userName: users.name,
+          email: users.email,
+          storeId: stores.id,
+          storeName: stores.name,
+          role: memberships.role,
+        })
+        .from(memberships)
+        .innerJoin(users, eq(users.id, memberships.userId))
+        .innerJoin(stores, eq(stores.id, memberships.storeId))
+        .where(and(eq(memberships.userId, userId), eq(memberships.storeId, storeId)))
+        .limit(1),
+    );
 
     if (!row) throw new UnauthorizedException('Faça login para continuar');
 

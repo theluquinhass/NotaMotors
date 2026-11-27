@@ -2,13 +2,15 @@
 
 SaaS para quem vende veículos (seminovos, concessionárias 0 km e lojas de motos): estoque, vendas, métricas e NF-e nas regras da reforma tributária. Diferencial proposto: formalização guiada.
 
-Situação em 27/11/2026: monorepo, banco, cadastro, login e sessão prontos. Um desenvolvedor, cerca de 2 horas por dia. Início do desenvolvimento: 30/11/2026. Responda em português do Brasil.
+Situação em 27/11/2026: monorepo, banco, cadastro, login, sessão e separação por loja (RLS) prontos. Um desenvolvedor, cerca de 2 horas por dia. Início do desenvolvimento: 30/11/2026. Responda em português do Brasil.
 
 ## Comandos
 
 Requisitos: Node 22+, pnpm 10 e Docker. No Fedora o Node vem sem corepack; o pnpm foi instalado com `npm install -g pnpm@10 --prefix ~/.local`.
 
 Primeira vez: `cp .env.example .env`, `docker compose up -d --wait`, `pnpm install`, `pnpm --filter @notamotors/api db:migrate`.
+
+Volume do Postgres criado antes de 27/11/2026 não tem o papel `notamotors_app` (o `init.sql` só roda num volume novo). Criar uma vez: `docker exec notamotors-postgres psql -U notamotors -c "CREATE ROLE notamotors_app LOGIN PASSWORD 'notamotors_app'"`.
 
 | Comando          | O que faz                                                                 |
 | ---------------- | ------------------------------------------------------------------------- |
@@ -36,7 +38,11 @@ Primeira vez: `cp .env.example .env`, `docker compose up -d --wait`, `pnpm insta
 - Versões instaladas na base: NestJS 12, Vite 8, Vitest 5, ESLint 10, React (última). Sem `jest-dom` (tipos incompatíveis com Vitest 5).
 - PostgreSQL 18 + Drizzle (driver `pg`). Local no Docker para desenvolvimento e testes; Postgres gerenciado (região São Paulo) só na publicação. O código lê apenas `DATABASE_URL`.
 - Banco: IDs UUID v7 (`uuidv7()` do Postgres 18); enums do Postgres para status, papéis e regimes; sem `ON DELETE CASCADE`; constraints que o Drizzle não gera (ex.: `EXCLUDE`) vão em migração SQL escrita à mão (`db:generate --custom`).
-- RLS como segunda barreira de isolamento entre lojas (sessão 5).
+- RLS como segunda barreira de isolamento entre lojas:
+  - Dois papéis no banco: `notamotors` (dono das tabelas, migrações; `DATABASE_ADMIN_URL`) e `notamotors_app` (API; `DATABASE_URL`), que não é dono e nunca ignora o RLS.
+  - Toda consulta de dados da loja roda em `withTenant(db, { storeId, userId }, tx => ...)` (`apps/api/src/db/tenant.ts`), que define `app.store_id`/`app.user_id` só para a transação. Sem contexto, nenhuma linha aparece.
+  - Tabela nova da loja: na mesma migração, `ENABLE ROW LEVEL SECURITY` + política `store_id = app_current_store_id()` (ver `0003_row_level_security.sql`), e teste de isolamento como em `src/db/tenant-isolation.test.ts`. Os privilégios da API já vêm por `ALTER DEFAULT PRIVILEGES`.
+  - `users` e `sessions` ficam sem RLS de propósito (identidade, acessadas só pelo módulo de auth).
 - Login próprio: e-mail e senha com argon2id; sessão no Postgres (`sessions`), token no cookie `nm_session` (httpOnly, SameSite=Lax, Secure em produção).
 - Guard global `SessionGuard` fechado por padrão: toda rota exige sessão; rotas abertas usam `@Public()`. O contexto de quem está logado vem de `@CurrentAuth()` (`userId`, `storeId`, `role`).
 - Testes: Vitest; banco real via Docker Compose para testes de integração.

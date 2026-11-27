@@ -5,6 +5,7 @@ import { sql } from 'drizzle-orm';
 import type { Database } from '../db/client.js';
 import { DATABASE } from '../db/database.module.js';
 import { isUniqueViolation } from '../db/errors.js';
+import { setTenant } from '../db/tenant.js';
 import { memberships, stores, subscriptions, users } from '../db/schema/index.js';
 
 @Injectable()
@@ -25,9 +26,13 @@ export class SignupService {
           .values({ name: input.name, email: input.email, passwordHash })
           .returning({ id: users.id });
 
+        // O RLS só deixa gravar a loja do contexto: gera o id antes e aplica o contexto.
+        const { rows } = await tx.execute<{ id: string }>(sql`select uuidv7() as id`);
+        await setTenant(tx, { storeId: rows[0]!.id, userId: user!.id });
+
         const [store] = await tx
           .insert(stores)
-          .values({ name: input.storeName, createdBy: user!.id })
+          .values({ id: rows[0]!.id, name: input.storeName, createdBy: user!.id })
           .returning({ id: stores.id });
 
         await tx

@@ -4,6 +4,7 @@ import { and, eq, gt, isNull, sql } from 'drizzle-orm';
 import type { Database } from '../db/client.js';
 import { DATABASE } from '../db/database.module.js';
 import { memberships, sessions } from '../db/schema/index.js';
+import { setTenant, withTenant } from '../db/tenant.js';
 import type { AuthContext } from './auth-context.js';
 import { SESSION_TTL_DAYS } from './session.constants.js';
 
@@ -36,27 +37,38 @@ export class SessionService {
    * Retorna null em qualquer outro caso.
    */
   async resolve(token: string): Promise<AuthContext | null> {
-    const [row] = await this.db
-      .select({
-        sessionId: sessions.id,
-        userId: sessions.userId,
-        storeId: sessions.storeId,
-        role: memberships.role,
-      })
-      .from(sessions)
-      .innerJoin(
-        memberships,
-        and(eq(memberships.userId, sessions.userId), eq(memberships.storeId, sessions.storeId)),
-      )
-      .where(
-        and(
-          eq(sessions.tokenHash, hashToken(token)),
-          isNull(sessions.revokedAt),
-          gt(sessions.expiresAt, sql`now()`),
-        ),
-      )
-      .limit(1);
-    return row ?? null;
+    return withTenant(this.db, {}, async (tx) => {
+      const [session] = await tx
+        .select({ id: sessions.id, userId: sessions.userId, storeId: sessions.storeId })
+        .from(sessions)
+        .where(
+          and(
+            eq(sessions.tokenHash, hashToken(token)),
+            isNull(sessions.revokedAt),
+            gt(sessions.expiresAt, sql`now()`),
+          ),
+        )
+        .limit(1);
+      if (!session) return null;
+
+      // Com a sessão encontrada, o vínculo é conferido já sob o RLS da loja dela.
+      await setTenant(tx, { storeId: session.storeId, userId: session.userId });
+      const [membership] = await tx
+        .select({ role: memberships.role })
+        .from(memberships)
+        .where(
+          and(eq(memberships.userId, session.userId), eq(memberships.storeId, session.storeId)),
+        )
+        .limit(1);
+      if (!membership) return null;
+
+      return {
+        sessionId: session.id,
+        userId: session.userId,
+        storeId: session.storeId,
+        role: membership.role,
+      };
+    });
   }
 
   async revoke(sessionId: string): Promise<void> {

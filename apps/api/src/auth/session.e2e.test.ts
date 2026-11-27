@@ -12,7 +12,7 @@ describe('login and session', () => {
 
   beforeAll(async () => {
     api = await startApi();
-    db = createDatabase(process.env.DATABASE_URL ?? '');
+    db = createDatabase(process.env.DATABASE_ADMIN_URL ?? '');
   });
 
   afterAll(async () => {

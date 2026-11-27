@@ -17,6 +17,11 @@ export default defineConfig({
   test: {
     include: ['src/**/*.test.ts'],
     globalSetup: ['./test/global-setup.ts'],
-    env: { DATABASE_URL: process.env.DATABASE_URL_TEST ?? '' },
+    env: {
+      // A API nos testes usa o papel sem privilégios, como em produção.
+      DATABASE_URL: process.env.DATABASE_URL_TEST ?? '',
+      // Consultas de conferência dos testes usam o dono das tabelas (ignora o RLS).
+      DATABASE_ADMIN_URL: process.env.DATABASE_ADMIN_URL_TEST ?? '',
+    },
   },
 });

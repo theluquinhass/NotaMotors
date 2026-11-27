@@ -19,7 +19,7 @@ describe('POST /api/auth/signup', () => {
 
   beforeAll(async () => {
     api = await startApi();
-    db = createDatabase(process.env.DATABASE_URL ?? '');
+    db = createDatabase(process.env.DATABASE_ADMIN_URL ?? '');
   });
 
   afterAll(async () => {
