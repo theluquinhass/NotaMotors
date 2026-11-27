@@ -62,3 +62,12 @@ export function fakeSignup(overrides: Record<string, unknown> = {}) {
     ...overrides,
   };
 }
+
+/** CNPJ alfanumérico válido e aleatório (fictício), para não colidir entre testes. */
+export async function fakeCnpj(): Promise<string> {
+  const { cnpjCheckDigits } = await import('@notamotors/shared');
+  const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  let base = '';
+  for (let i = 0; i < 12; i++) base += chars[Math.floor(Math.random() * chars.length)];
+  return base + cnpjCheckDigits(base);
+}

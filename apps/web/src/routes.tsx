@@ -1,6 +1,7 @@
 import { Navigate, type RouteObject } from 'react-router';
 import { GuestOnly, RequireAccess, RequireSession } from './auth/guards';
 import { CheckoutPage } from './pages/checkout-page';
+import { CompanyPage } from './pages/company-page';
 import { DashboardPage } from './pages/dashboard-page';
 import { LoginPage } from './pages/login-page';
 import { NotFoundPage } from './pages/not-found-page';
@@ -26,6 +27,10 @@ export const routes: RouteObject[] = [
     ),
   },
   { path: '/app', element: <RequireAccess>{(me) => <DashboardPage me={me} />}</RequireAccess> },
+  {
+    path: '/app/empresa',
+    element: <RequireAccess>{(me) => <CompanyPage me={me} />}</RequireAccess>,
+  },
   {
     path: '/checkout',
     element: <RequireSession>{(me) => <CheckoutPage me={me} />}</RequireSession>,

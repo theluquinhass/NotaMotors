@@ -1,5 +1,6 @@
 import { PRODUCT_NAME, type MeResponse } from '@notamotors/shared';
 import type { ReactNode } from 'react';
+import { NavLink } from 'react-router';
 import { useLogout } from '../auth/use-logout';
 
 function AccessBanner({ access }: { access: MeResponse['access'] }) {
@@ -42,6 +43,12 @@ export function AppLayout({ me, children }: { me: MeResponse; children: ReactNod
           </button>
         </div>
       </header>
+      <nav className="app-nav" aria-label="Principal">
+        <NavLink to="/app" end>
+          Início
+        </NavLink>
+        <NavLink to="/app/empresa">Empresa</NavLink>
+      </nav>
       <AccessBanner access={me.access} />
       <main className="app-main">{children}</main>
     </div>

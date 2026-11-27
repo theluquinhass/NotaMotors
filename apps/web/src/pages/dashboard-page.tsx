@@ -1,5 +1,6 @@
 import type { CurrentStoreResponse, MeResponse } from '@notamotors/shared';
 import { useQuery } from '@tanstack/react-query';
+import { Link } from 'react-router';
 import { api } from '../api/client';
 import { AppLayout } from '../components/app-layout';
 
@@ -15,7 +16,8 @@ export function DashboardPage({ me }: { me: MeResponse }) {
       {store.data?.fiscalStatus === 'incomplete' ? (
         <p className="notice">
           Estoque e vendas já estão liberados. Para emitir nota fiscal, a loja vai precisar de CNPJ,
-          inscrição estadual e certificado digital: o passo a passo chega em breve.
+          inscrição estadual e certificado digital.{' '}
+          <Link to="/app/empresa">Preencher os dados da empresa</Link>
         </p>
       ) : null}
       <div className="cards">

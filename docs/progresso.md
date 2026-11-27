@@ -1,5 +1,25 @@
 # Progresso
 
+## 27/11/2026 · Sessão 8 · Bloco Cadastros
+
+**Horas:** ≈ 1,5 h (ajustar com o tempo real)
+
+A publicação (fim do bloco Base) ficou para depois: depende da escolha de provedor e custo.
+
+**Feito**
+
+- `packages/shared/src/cnpj.ts`: normalização, dígito verificador do CNPJ alfanumérico e numérico (conferido com `11.222.333/0001-81` e com o exemplo da Receita `12.ABC.345/01DE-35`), rejeição de sequências repetidas, formatação.
+- `storeFiscalInputSchema`: CNPJ, IE (só formato genérico), UF (27), regime e data de início, mensagens em português.
+- API: `GET /api/stores/current/fiscal` e `PUT /api/stores/current/fiscal` (só o dono; vendedor recebe 403). Troca de regime encerra o período atual na data do novo, numa transação; mesmo regime não cria período; troca não pode começar antes do regime atual. CNPJ repetido em outra loja → 409.
+- Lista "Para emitir nota fiscal" (CNPJ, IE, regime, certificado digital). `fiscal_status` continua `incomplete` até haver certificado (marco 2).
+- Front: navegação Início/Empresa, tela **Dados da empresa** com formulário (só leitura para vendedor), lista de pendências e link no aviso do painel.
+- Testes: 5 de CNPJ, 10 e2e (vazio, salvar e normalizar, histórico de regime, mesmo regime, data anterior, dígito inválido, CNPJ repetido, vendedor 403, não mexe em outra loja, exige login), 5 de tela.
+- Pendência registrada: regra da IE por UF (`docs/pendencias-contador.md`, item 1).
+
+**Próximo passo (sessão 9)**
+
+Cadastro de pessoas (`parties`): clientes e fornecedores na mesma tabela (PF/PJ, CPF/CNPJ, IE, MEI, contato, endereço), com RLS e teste de isolamento. Mostrar o esquema antes da migração.
+
 ## 27/11/2026 · Sessão 7 · Bloco Base
 
 **Horas:** ≈ 1,5 h (ajustar com o tempo real)

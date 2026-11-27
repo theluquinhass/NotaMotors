@@ -2,7 +2,7 @@
 
 SaaS para quem vende veículos (seminovos, concessionárias 0 km e lojas de motos): estoque, vendas, métricas e NF-e nas regras da reforma tributária. Diferencial proposto: formalização guiada.
 
-Situação em 27/11/2026: bloco Base quase completo (monorepo, banco, cadastro, login, sessão, RLS, trava de acesso e telas de entrada). Falta a publicação. Um desenvolvedor, cerca de 2 horas por dia. Início do desenvolvimento: 30/11/2026. Responda em português do Brasil.
+Situação em 27/11/2026: bloco Base pronto, exceto a publicação (aguarda escolha de provedor e custo). Bloco Cadastros começou: dados fiscais da empresa prontos. Um desenvolvedor, cerca de 2 horas por dia. Início do desenvolvimento: 30/11/2026. Responda em português do Brasil.
 
 ## Comandos
 
@@ -94,7 +94,8 @@ Loja sem cadastro fiscal completo usa estoque e vendas, mas não emite nota.
 - `sale_payments`: forma (pix, dinheiro, financiamento, cartão, transferência, `trade_in`) e valor; `trade_in` aponta para uma nova `acquisition`.
 - `files`: referência a objetos no S3.
 - Todas as tabelas: `store_id`, FKs compostas `(store_id, id)`, `created_at`, `updated_at`, `created_by`.
-- CNPJ e IE sempre como texto (CNPJ alfanumérico, IN RFB 2.229/2024).
+- CNPJ e IE sempre como texto, sem pontuação, em maiúsculas (CNPJ alfanumérico, IN RFB 2.229/2024). Dígito verificador do CNPJ em `packages/shared/src/cnpj.ts` (conferido com o exemplo oficial `12.ABC.345/01DE-35`).
+- Permissões por papel: ações só do dono usam `requireOwner(auth, '<ação>')` (403 com mensagem em português).
 - Marco 2: `webhook_events` (único por `(gateway, event_id)`), contador de notas por loja e período.
 
 ## Entrada, teste grátis e pagamento (definido em 26/11/2026)
@@ -175,6 +176,8 @@ Contexto conferido em 26/11/2026 (reconferir antes de cada entrega):
 
 - Certificado A1 para o teste de homologação: ainda sem definição.
 - Estado piloto: decidir mais para frente.
+- Publicação (fim do bloco Base): escolher provedor para API, front e Postgres (região São Paulo) e o custo mensal aceitável.
+- Inscrição estadual: só o formato genérico é conferido; regra por UF aguarda fonte oficial (`docs/pendencias-contador.md`, item 1).
 
 ## Como trabalhar
 
