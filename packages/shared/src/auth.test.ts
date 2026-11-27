@@ -31,6 +31,20 @@ describe('signupInputSchema', () => {
     expect(messages).toContain('A senha precisa ter pelo menos 8 caracteres');
   });
 
+  it('says "Informe…" for empty fields (not "muito curto")', () => {
+    const result = signupInputSchema.safeParse({
+      name: '  ',
+      email: '',
+      password: '',
+      storeName: '',
+    });
+    const first = (field: string) => result.error?.issues.find((i) => i.path[0] === field)?.message;
+    expect(first('name')).toBe('Informe seu nome');
+    expect(first('email')).toBe('Informe seu e-mail');
+    expect(first('password')).toBe('Informe uma senha');
+    expect(first('storeName')).toBe('Informe o nome da loja');
+  });
+
   it('requires all fields', () => {
     const result = signupInputSchema.safeParse({});
     expect(result.error?.issues.map((i) => i.path[0])).toEqual([

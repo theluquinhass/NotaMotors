@@ -13,6 +13,14 @@ export interface AccessInfo {
   trialDaysLeft: number;
 }
 
+/** Mensagens mostradas na API (402) e na tela de checkout. */
+export const ACCESS_BLOCK_MESSAGES: Record<AccessBlockReason, string> = {
+  trial_expired: 'Seu teste grátis terminou. Assine para continuar usando o NotaMotors.',
+  past_due: 'Há um pagamento pendente. Regularize para continuar usando o NotaMotors.',
+  canceled: 'Sua assinatura foi cancelada. Assine novamente para continuar.',
+  period_ended: 'Sua assinatura venceu. Renove para continuar usando o NotaMotors.',
+};
+
 /** Código do erro 402 quando a loja está bloqueada; o front leva para /checkout. */
 export const ACCESS_BLOCKED = 'ACCESS_BLOCKED';
 

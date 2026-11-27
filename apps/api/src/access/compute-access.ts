@@ -49,10 +49,3 @@ export function computeAccess(sub: SubscriptionSnapshot, now: Date): AccessInfo 
       return block('canceled');
   }
 }
-
-export const BLOCK_MESSAGES: Record<AccessBlockReason, string> = {
-  trial_expired: 'Seu teste grátis terminou. Assine para continuar usando o NotaMotors.',
-  past_due: 'Há um pagamento pendente. Regularize para continuar usando o NotaMotors.',
-  canceled: 'Sua assinatura foi cancelada. Assine novamente para continuar.',
-  period_ended: 'Sua assinatura venceu. Renove para continuar usando o NotaMotors.',
-};

@@ -2,7 +2,7 @@
 
 SaaS para quem vende veículos (seminovos, concessionárias 0 km e lojas de motos): estoque, vendas, métricas e NF-e nas regras da reforma tributária. Diferencial proposto: formalização guiada.
 
-Situação em 27/11/2026: monorepo, banco, cadastro, login, sessão, separação por loja (RLS) e trava de acesso prontos. Um desenvolvedor, cerca de 2 horas por dia. Início do desenvolvimento: 30/11/2026. Responda em português do Brasil.
+Situação em 27/11/2026: bloco Base quase completo (monorepo, banco, cadastro, login, sessão, RLS, trava de acesso e telas de entrada). Falta a publicação. Um desenvolvedor, cerca de 2 horas por dia. Início do desenvolvimento: 30/11/2026. Responda em português do Brasil.
 
 ## Comandos
 
@@ -27,7 +27,10 @@ Volume do Postgres criado antes de 27/11/2026 não tem o papel `notamotors_app` 
 
 - TypeScript em todo o projeto.
 - Monorepo com pnpm workspaces (sem Turborepo por enquanto):
-  - `apps/web`: React + Vite (depois: TanStack Query, React Hook Form, Zod).
+  - `apps/web`: React + Vite, React Router 8, TanStack Query, React Hook Form + `@hookform/resolvers` com os schemas Zod de `packages/shared`. CSS próprio (`src/styles.css`, variáveis de cor com tema claro/escuro), sem biblioteca visual.
+    - Proteção de rota só com dados do servidor: `RequireAccess` (sem sessão → `/login`; bloqueada → `/checkout`), `RequireSession`, `GuestOnly` (`src/auth/guards.tsx`).
+    - Qualquer 401 zera o `/auth/me`; qualquer 402 `ACCESS_BLOCKED` recarrega o `/auth/me` (`src/api/query-client.ts`).
+    - Testes de tela com a API simulada: `mockApi()` e `renderApp()` em `src/test/render-app.tsx`.
   - `apps/api`: NestJS (compilado com SWC).
   - `apps/site` (marco 2): landing page em HTML pré-renderizado.
   - `packages/shared`: tipos e schemas Zod usados por web e API.

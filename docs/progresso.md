@@ -1,5 +1,29 @@
 # Progresso
 
+## 27/11/2026 · Sessão 7 · Bloco Base
+
+**Horas:** ≈ 1,5 h (ajustar com o tempo real)
+
+**Feito**
+
+- Dependências aprovadas no front: `react-router` 8, `@tanstack/react-query`, `react-hook-form`, `@hookform/resolvers` 7, `zod`.
+- Rotas: `/` → `/login`; `/cadastro`, `/login` (só visitante); `/app` (exige acesso liberado); `/checkout` (exige login); 404.
+- Formulários de cadastro e login com os mesmos schemas Zod da API; erros do servidor no campo certo (e-mail repetido no campo e-mail, senha errada no topo).
+- Dashboard inicial: loja, usuário, aviso "Teste grátis: N dias restantes" (singular para 1), aviso de cadastro fiscal incompleto, cartões de Estoque e Vendas "em breve", botão Sair.
+- Checkout provisório: motivo do bloqueio, aviso de que os dados continuam guardados, "assinatura online em breve".
+- Mensagens de bloqueio movidas para `packages/shared` (`ACCESS_BLOCK_MESSAGES`), usadas pela API e pela tela.
+- Correção encontrada pelos testes: campo vazio agora diz "Informe seu nome/e-mail/senha/nome da loja" em vez de "muito curto".
+- 13 testes de tela: proteção de rotas (sem sessão, teste ativo, teste vencido, 402 no meio do uso, logado abrindo /login, raiz), cadastro (validação sem chamar a API, sucesso com e-mail normalizado, e-mail repetido), login (erro genérico, teste vencido → checkout), logout.
+- Fluxo real pelo proxy do Vite (`pnpm dev`): cadastro 201 → `/auth/me` em teste com 14 dias → `/stores/current` 200 → teste vencido → 402 e `/auth/me` bloqueado.
+
+**Não verificado**
+
+- Aparência das telas no navegador (testado só pelos testes de tela e pela API). Abrir http://localhost:5173 e conferir.
+
+**Próximo passo (sessão 8)**
+
+Fechar o bloco Base com a publicação: escolher onde hospedar API, front e Postgres (região São Paulo), variáveis de ambiente, papel `notamotors_app` em produção, migrações no deploy, HTTPS e rate limit no cadastro e no login. Decisão do responsável: provedor e custo.
+
 ## 27/11/2026 · Sessão 6 · Bloco Base
 
 **Horas:** ≈ 1 h (ajustar com o tempo real)

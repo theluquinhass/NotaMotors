@@ -5,22 +5,26 @@ const emailField = z
   .string({ error: 'Informe seu e-mail' })
   .trim()
   .toLowerCase()
+  .min(1, { error: 'Informe seu e-mail' })
   .pipe(z.email({ error: 'E-mail inválido' }).max(254, { error: 'E-mail muito longo' }));
 
 export const signupInputSchema = z.object({
   name: z
     .string({ error: 'Informe seu nome' })
     .trim()
+    .min(1, { error: 'Informe seu nome' })
     .min(2, { error: 'Nome muito curto' })
     .max(120, { error: 'Nome muito longo' }),
   email: emailField,
   password: z
     .string({ error: 'Informe uma senha' })
+    .min(1, { error: 'Informe uma senha' })
     .min(8, { error: 'A senha precisa ter pelo menos 8 caracteres' })
     .max(128, { error: 'A senha pode ter no máximo 128 caracteres' }),
   storeName: z
     .string({ error: 'Informe o nome da loja' })
     .trim()
+    .min(1, { error: 'Informe o nome da loja' })
     .min(2, { error: 'Nome da loja muito curto' })
     .max(120, { error: 'Nome da loja muito longo' }),
 });

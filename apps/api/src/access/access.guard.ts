@@ -6,12 +6,11 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { ACCESS_BLOCKED, type AccessBlockedError } from '@notamotors/shared';
+import { ACCESS_BLOCK_MESSAGES, ACCESS_BLOCKED, type AccessBlockedError } from '@notamotors/shared';
 import type { AuthenticatedRequest } from '../auth/auth-context.js';
 import { IS_PUBLIC } from '../auth/public.decorator.js';
 import { AccessService } from './access.service.js';
 import { ALLOW_BLOCKED } from './allow-blocked.decorator.js';
-import { BLOCK_MESSAGES } from './compute-access.js';
 
 /**
  * Guard global, roda depois do SessionGuard: bloqueia o dashboard quando o teste
@@ -40,7 +39,7 @@ export class AccessGuard implements CanActivate {
       statusCode: HttpStatus.PAYMENT_REQUIRED,
       code: ACCESS_BLOCKED,
       reason: access.reason!,
-      message: BLOCK_MESSAGES[access.reason!],
+      message: ACCESS_BLOCK_MESSAGES[access.reason!],
     };
     throw new HttpException(body, HttpStatus.PAYMENT_REQUIRED);
   }
