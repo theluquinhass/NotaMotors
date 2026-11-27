@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
+import { AccessGuard } from '../access/access.guard.js';
+import { AccessService } from '../access/access.service.js';
 import { AuthController } from './auth.controller.js';
 import { LoginService } from './login.service.js';
 import { SessionGuard } from './session.guard.js';
@@ -12,9 +14,13 @@ import { SignupService } from './signup.service.js';
     SignupService,
     LoginService,
     SessionService,
-    // Toda rota da API exige sessão, exceto as marcadas com @Public().
+    AccessService,
+    // Guards globais, nesta ordem (o Nest executa na ordem de registro):
+    // 1. toda rota exige sessão, exceto @Public();
+    // 2. rota do dashboard exige acesso liberado, exceto @AllowBlocked().
     { provide: APP_GUARD, useClass: SessionGuard },
+    { provide: APP_GUARD, useClass: AccessGuard },
   ],
-  exports: [SessionService],
+  exports: [SessionService, AccessService],
 })
 export class AuthModule {}

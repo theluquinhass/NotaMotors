@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { AccessInfo } from './access.js';
 
 const emailField = z
   .string({ error: 'Informe seu e-mail' })
@@ -51,4 +52,5 @@ export interface MeResponse {
   user: { id: string; name: string; email: string };
   store: { id: string; name: string };
   role: MembershipRole;
+  access: AccessInfo;
 }

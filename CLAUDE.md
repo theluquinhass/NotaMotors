@@ -2,7 +2,7 @@
 
 SaaS para quem vende veículos (seminovos, concessionárias 0 km e lojas de motos): estoque, vendas, métricas e NF-e nas regras da reforma tributária. Diferencial proposto: formalização guiada.
 
-Situação em 27/11/2026: monorepo, banco, cadastro, login, sessão e separação por loja (RLS) prontos. Um desenvolvedor, cerca de 2 horas por dia. Início do desenvolvimento: 30/11/2026. Responda em português do Brasil.
+Situação em 27/11/2026: monorepo, banco, cadastro, login, sessão, separação por loja (RLS) e trava de acesso prontos. Um desenvolvedor, cerca de 2 horas por dia. Início do desenvolvimento: 30/11/2026. Responda em português do Brasil.
 
 ## Comandos
 
@@ -45,6 +45,7 @@ Volume do Postgres criado antes de 27/11/2026 não tem o papel `notamotors_app` 
   - `users` e `sessions` ficam sem RLS de propósito (identidade, acessadas só pelo módulo de auth).
 - Login próprio: e-mail e senha com argon2id; sessão no Postgres (`sessions`), token no cookie `nm_session` (httpOnly, SameSite=Lax, Secure em produção).
 - Guard global `SessionGuard` fechado por padrão: toda rota exige sessão; rotas abertas usam `@Public()`. O contexto de quem está logado vem de `@CurrentAuth()` (`userId`, `storeId`, `role`).
+- Guard global `AccessGuard` (depois do `SessionGuard`): loja bloqueada recebe **402** `{ code: 'ACCESS_BLOCKED', reason, message }`. Regra em `apps/api/src/access/compute-access.ts` (função pura, `now()` do banco). Rotas que funcionam bloqueadas: `@AllowBlocked()` (hoje `/auth/me` e `/auth/logout`; depois o checkout). `past_due` bloqueia até a regra de carência ser decidida.
 - Testes: Vitest; banco real via Docker Compose para testes de integração.
 - Filas: adiar; tendência para pg-boss quando houver emissão.
 - XML e DANFE em armazenamento compatível com S3.

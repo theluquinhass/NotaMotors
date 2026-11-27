@@ -1,5 +1,7 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import type { LoginInput, MeResponse } from '@notamotors/shared';
+
+export type MeWithoutAccess = Omit<MeResponse, 'access'>;
 import argon2 from 'argon2';
 import { and, asc, eq, sql } from 'drizzle-orm';
 import type { Database } from '../db/client.js';
@@ -51,7 +53,7 @@ export class LoginService {
     return { userId: user.id, storeId: membership.storeId };
   }
 
-  async me(userId: string, storeId: string): Promise<MeResponse> {
+  async me(userId: string, storeId: string): Promise<MeWithoutAccess> {
     const [row] = await withTenant(this.db, { storeId, userId }, (tx) =>
       tx
         .select({

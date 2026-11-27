@@ -8,6 +8,8 @@ import {
   type SignupResponse,
 } from '@notamotors/shared';
 import type { Response } from 'express';
+import { AccessService } from '../access/access.service.js';
+import { AllowBlocked } from '../access/allow-blocked.decorator.js';
 import { ZodValidationPipe } from '../common/zod-validation.pipe.js';
 import type { AuthContext } from './auth-context.js';
 import { clearSessionCookie, setSessionCookie } from './cookies.js';
@@ -23,7 +25,16 @@ export class AuthController {
     private readonly signupService: SignupService,
     private readonly loginService: LoginService,
     private readonly sessionService: SessionService,
+    private readonly accessService: AccessService,
   ) {}
+
+  private async meWithAccess(userId: string, storeId: string): Promise<MeResponse> {
+    const [me, access] = await Promise.all([
+      this.loginService.me(userId, storeId),
+      this.accessService.forStore(storeId),
+    ]);
+    return { ...me, access };
+  }
 
   /** Cadastro já entra logado: /cadastro → /app. */
   @Public()
@@ -49,9 +60,10 @@ export class AuthController {
     const { userId, storeId } = await this.loginService.verifyCredentials(body);
     const session = await this.sessionService.create(userId, storeId);
     setSessionCookie(res, session.token, session.expiresAt);
-    return this.loginService.me(userId, storeId);
+    return this.meWithAccess(userId, storeId);
   }
 
+  @AllowBlocked()
   @Post('logout')
   @HttpCode(HttpStatus.NO_CONTENT)
   async logout(
@@ -62,8 +74,10 @@ export class AuthController {
     clearSessionCookie(res);
   }
 
+  /** Funciona com a loja bloqueada: o front usa `access` para levar a /checkout. */
+  @AllowBlocked()
   @Get('me')
   me(@CurrentAuth() auth: AuthContext): Promise<MeResponse> {
-    return this.loginService.me(auth.userId, auth.storeId);
+    return this.meWithAccess(auth.userId, auth.storeId);
   }
 }

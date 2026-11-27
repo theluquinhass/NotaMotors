@@ -1,5 +1,28 @@
 # Progresso
 
+## 27/11/2026 · Sessão 6 · Bloco Base
+
+**Horas:** ≈ 1 h (ajustar com o tempo real)
+
+**Feito**
+
+- `packages/shared/src/access.ts`: `AccessInfo` (situação, liberado, motivo, fim do teste, dias restantes), erro `ACCESS_BLOCKED`, `CurrentStoreResponse`.
+- `computeAccess()` (função pura): liberação manual → liberado; `active` só com período vigente (sem data de fim, bloqueia); `trialing` até `trial_ends_at`; `past_due` e `canceled` bloqueiam. O horário vem sempre do `now()` do banco.
+- `AccessGuard` global depois do `SessionGuard`; bloqueio responde 402 com código, motivo e mensagem em português. `@AllowBlocked()` em `/auth/me` e `/auth/logout`.
+- `/auth/me` e `/auth/login` devolvem `access`.
+- Primeira rota do dashboard: `GET /api/stores/current` (sob RLS).
+- Testes: 9 da regra pura (inclusive bordas: termina exatamente agora, menos de 1 dia, ativa sem data de fim) e 9 e2e — os obrigatórios **teste ativo, teste vencido, assinatura ativa, liberação manual** — mais dados mantidos após o bloqueio, recálculo a cada requisição, 401 antes do 402 e relógio do cliente ignorado.
+- Teste de mutação: sem o `AccessGuard`, 5 testes falham (confirmado e revertido).
+
+**Decisão pendente**
+
+- Pagamento atrasado (`past_due`): hoje bloqueia na hora. Definir carência junto com o gateway (marco 2).
+- Loja piloto (`manual_grant`) poderá emitir nota no marco 2? A regra atual diz "assinatura ativa e cadastro fiscal completo".
+
+**Próximo passo (sessão 7)**
+
+Front: telas de cadastro e login, rota `/app` protegida (redireciona para `/login` sem sessão e para `/checkout` quando bloqueada), dias restantes do teste vindos do servidor. Dependências a aprovar: `react-router`, `@tanstack/react-query`, `react-hook-form` (+ `@hookform/resolvers`) — já previstas no stack.
+
 ## 27/11/2026 · Sessão 5 · Bloco Base
 
 **Horas:** ≈ 1 h (ajustar com o tempo real)
